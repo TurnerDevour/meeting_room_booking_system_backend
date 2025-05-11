@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createTransport, Transporter } from 'nodemailer';
+import { ConfigService } from '@nestjs/config';
 
 interface IEmailOptions {
   to: string;
@@ -11,14 +12,14 @@ interface IEmailOptions {
 export class EmailService {
   private readonly transporter: Transporter;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.transporter = createTransport({
-      host: 'smtp.163.com',
-      port: 465,
+      host: this.configService.get('NODEMAILER_HOST'),
+      port: this.configService.get('NODEMAILER_PORT'),
       secure: true,
       auth: {
-        user: 'turneratc@163.com',
-        pass: 'NTRFAgFLTj5vrBuJ',
+        user: this.configService.get('NODEMAILER_USER'),
+        pass: this.configService.get('NODEMAILER_PASS'),
       },
     });
   }
@@ -27,7 +28,7 @@ export class EmailService {
     await this.transporter.sendMail({
       from: {
         name: '会议室预定系统',
-        address: 'turneratc@163.com',
+        address: this.configService.get('NODEMAILER_USER') ?? '',
       },
       to,
       subject,
